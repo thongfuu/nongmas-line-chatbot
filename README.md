@@ -33,24 +33,24 @@ graph TD
     Start(["📡 Webhook (LINE Events)"]) --> Router{"Message Type?"}
 
     %% --- File/Image Handling Branch ---
-    Router -- "Image / File" --> GetFile["📥 Get Content from LINE"]
-    GetFile --> UpDrive["☁️ Upload to Google Drive"]
-    UpDrive --> LogSheet["📝 Log URL to Google Sheets"]
-    LogSheet --> ReplyFile["💬 Reply: Saved Successfully"]
+    Router -- "Image / File" --> GetFile["Get Content from LINE"]
+    GetFile --> UpDrive["Upload to Google Drive"]
+    UpDrive --> LogSheet["Log URL to Google Sheets"]
+    LogSheet --> ReplyFile["Reply: Saved Successfully"]
 
     %% --- Text Handling Branch ---
     Router -- "Text Message" --> IntentCheck{"Check Intent"}
     
     %% Intent: History/Summary
-    IntentCheck -- "History / Summary" --> FetchData["📊 Fetch Data from Sheets"]
+    IntentCheck -- "History / Summary" --> FetchData["Fetch Data from Sheets"]
     FetchData --> AggData["∑ Aggregate & Calculate"]
-    AggData --> GenFlex["🎨 Generate Flex Message (JSON)"]
-    GenFlex --> ReplyFlex["💬 Reply: Dashboard"]
+    AggData --> GenFlex["Generate Flex Message (JSON)"]
+    GenFlex --> ReplyFlex["Reply: Dashboard"]
 
     %% Intent: Transaction (Income/Expense)
-    IntentCheck -- "Natural Language" --> AI["🧠 Gemini AI Parse"]
-    AI -- "Extract Data" --> SaveTx["📝 Save Transaction to Sheets"]
-    SaveTx --> ReplyTx["💬 Reply: Transaction Recorded"]
+    IntentCheck -- "Natural Language" --> AI["Gemini AI Parse"]
+    AI -- "Extract Data" --> SaveTx["Save Transaction to Sheets"]
+    SaveTx --> ReplyTx["Reply: Transaction Recorded"]
 
     %% Styles
     style Start fill:#2ecc71,stroke:#27ae60,color:white
