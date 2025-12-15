@@ -30,7 +30,7 @@ This diagram illustrates the logic flow extracted from the n8n JSON file:
 
 ```mermaid
 graph TD
-    Start(["📡 Webhook (LINE Events)"]) --> Router{"Message Type?"}
+    Start(["Webhook (LINE Events)"]) --> Router{"Message Type?"}
 
     %% --- File/Image Handling Branch ---
     Router -- "Image / File" --> GetFile["Get Content from LINE"]
