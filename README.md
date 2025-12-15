@@ -1,4 +1,13 @@
 # NongMas - Smart LINE Chatbot Workflow
+![Project Banner](link_to_your_banner_image.png)
+![n8n](https://img.shields.io/badge/Workflow-n8n-ff6d5a)
+![LINE](https://img.shields.io/badge/Platform-LINE_OA-00c300)
+![Gemini](https://img.shields.io/badge/AI-Google_Gemini-8e44ad)
+![Google Sheets](https://img.shields.io/badge/Database-Google_Sheets-34a853)
+
+> **"Financial tracking made conversational."**
+> NongMas is a smart LINE Chatbot that turns natural language into structured data using **Generative AI**. No more manual forms—just chat, and let the AI handle the rest.
+
 NongMas is an automated workflow powered by n8n, designed to be your personal assistant via LINE Official Account (OA). It features AI-driven expense tracking and automatic file archiving.
 
 ## Key Features
