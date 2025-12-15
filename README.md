@@ -35,7 +35,7 @@ graph TD
     Router -- "Image / File" --> GetFile["Get Content from LINE"]
     GetFile --> UpDrive["Upload to Google Drive"]
     UpDrive --> LogSheet["Log URL to Google Sheets"]
-    LogSheet --> ReplyFile["Reply: Saved Successfully"]
+    LogSheet --> ReplyFile["Reply"]
 
     %% --- Text Handling Branch ---
     Router -- "Text Message" --> IntentCheck{"Check Intent"}
@@ -44,12 +44,12 @@ graph TD
     IntentCheck -- "History / Summary" --> FetchData["Fetch Data from Sheets"]
     FetchData --> AggData["∑ Aggregate & Calculate"]
     AggData --> GenFlex["Generate Flex Message (JSON)"]
-    GenFlex --> ReplyFlex["Reply: Dashboard"]
+    GenFlex --> ReplyFlex["Reply"]
 
     %% Intent: Transaction (Income/Expense)
     IntentCheck -- "Natural Language" --> AI["Gemini AI Parse"]
     AI -- "Extract Data" --> SaveTx["Save Transaction to Sheets"]
-    SaveTx --> ReplyTx["Reply: Transaction Recorded"]
+    SaveTx --> ReplyTx["Reply"]
 
     %% Styles
     style Start fill:#2ecc71,stroke:#27ae60,color:white
