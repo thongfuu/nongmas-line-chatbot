@@ -1,84 +1,99 @@
-# NongMas - Smart LINE Chatbot Workflow
+# NongMas - AI Financial Assistant Chatbot
 
-![n8n](https://img.shields.io/badge/Workflow-n8n-ff6d5a)
-![LINE](https://img.shields.io/badge/Platform-LINE_OA-00c300)
-![Gemini](https://img.shields.io/badge/AI-Google_Gemini-8e44ad)
-![Google Sheets](https://img.shields.io/badge/Database-MongoDB-34a853)
+![n8n](https://img.shields.io/badge/Workflow-n8n-FF6D5A?style=for-the-badge&logo=n8n&logoColor=white)
+![LINE](https://img.shields.io/badge/Platform-LINE_OA-00C300?style=for-the-badge&logo=line&logoColor=white)
+![Gemini](https://img.shields.io/badge/AI-Google_Gemini-8E44AD?style=for-the-badge&logo=google-gemini&logoColor=white)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Google Drive](https://img.shields.io/badge/Storage-Google_Drive-34A853?style=for-the-badge&logo=google-drive&logoColor=white)
 
 > **"Financial tracking made conversational."**
-> NongMas is a smart LINE Chatbot that turns natural language into structured data using **Generative AI**. No more manual forms—just chat, and let the AI handle the rest.
-
-NongMas is an automated workflow powered by n8n, designed to be your personal assistant via LINE Official Account (OA). It features AI-driven expense tracking and automatic file archiving.
+> NongMas is an advanced LINE Chatbot powered by **Generative AI** that automates expense tracking via Text, Image (Slips), and Voice.
 
 ## Key Features
-1. AI Expense Tracker
-- Uses Google Gemini AI to process natural language messages (e.g., "Lunch 50 THB", "Salary received 20,000").
-- Automatically categorizes transactions as Income or Expense.
-- Logs data directly into Google Sheets.
 
-2. Auto File Archiver
-- When a user sends an Image or File (PDF/Doc) to the chat.
-- The system automatically uploads it to Google Drive.
-- A log containing the file's URL is saved to Google Sheets for easy retrieval.
+### 1. Multi-Modal Expense Tracking
+* **Text:** "Lunch 50 baht" -> AI extracts `Category: Food`, `Amount: 50`.
+* **Voice:** Send a voice message -> Gemini Transcribes -> AI Process -> Save to DB.
+* **Image (Slips):** Upload a bank slip -> Gemini Vision extracts `Date`, `Amount`, `TransacID` -> Checks for duplicates -> Saves automatically.
 
-3. Dashboard & History
-- Supports commands to view "History" or "Summary".
-- Fetches data from Google Sheets, calculates totals, and responds with a beautiful Flex Message dashboard.
+### 2. Smart Duplicate Protection
+* Before saving a slip, the system checks **MongoDB** for the unique `transaction_id`.
+* **If duplicate:** Responds with "Duplicate slip detected!" and rejects the entry.
+* **If new:** Uploads the slip image to **Google Drive** (organized by UserID) and logs the transaction.
+
+### 3. Interactive Dashboard
+* **Daily/Monthly Summary:** Calculates income, expense, and balance in real-time using MongoDB Aggregation pipelines.
+* **Rich UI:** Responds with a beautiful **LINE Flex Message** dashboard.
+* **Actionable:** Users can click to view details or delete specific transactions directly from the chat.
 
 ## Workflow Diagram
-This diagram illustrates the logic flow extracted from the n8n JSON file:
+
+This diagram represents the actual logic flow from the n8n workflow:
 
 ```mermaid
 graph TD
-    Start(["Webhook (LINE Events)"]) --> Router{"Message Type?"}
+    %% Event Trigger
+    Start(["Webhook (LINE Events)"]) --> Router{"Check Message Type"}
 
-    %% --- File/Image Handling Branch ---
-    Router -- "Image / File" --> GetFile["Get Content from LINE"]
-    GetFile --> UpDrive["Upload to Google Drive"]
-    UpDrive --> LogSheet["Log URL to Google Sheets"]
-    LogSheet --> ReplyFile["Reply"]
-
-    %% --- Text Handling Branch ---
-    Router -- "Text Message" --> IntentCheck{"Check Intent"}
+    %% --- Image Handling (Slips) ---
+    Router -- "Image" --> GetImg["Get Image Content"]
+    GetImg --> Vision["Gemini Vision (Analyze Slip)"]
+    Vision --> Extract["Extract JSON (ID, Amount, Date)"]
+    Extract --> DupCheck{"Check MongoDB\n(Duplicate ID?)"}
     
-    %% Intent: History/Summary
-    IntentCheck -- "History / Summary" --> FetchData["Fetch Data from Sheets"]
-    FetchData --> AggData["∑ Aggregate & Calculate"]
-    AggData --> GenFlex["Generate Flex Message (JSON)"]
-    GenFlex --> ReplyFlex["Reply"]
+    DupCheck -- "Yes (Duplicate)" --> ReplyDup["Reply: 'Slip Duplicated!'"]
+    DupCheck -- "No (New)" --> UploadDrive["Upload Image to Google Drive"]
+    UploadDrive --> SaveMongoImg["Insert into MongoDB"]
+    SaveMongoImg --> ReplyFlex["Reply: Success Flex Message"]
 
-    %% Intent: Transaction (Income/Expense)
-    IntentCheck -- "Natural Language" --> AI["Gemini AI Parse"]
-    AI -- "Extract Data" --> SaveTx["Save Transaction to Sheets"]
-    SaveTx --> ReplyTx["Reply"]
+    %% --- Text & Voice Handling ---
+    Router -- "Voice" --> Transcribe["Gemini Transcribe (Audio->Text)"]
+    Router -- "Text" --> TextProc["Process Text"]
+    Transcribe --> AI_NLP["AI (OpenAI/Gemini) -> JSON"]
+    TextProc --> AI_NLP
+    AI_NLP --> SaveMongoText["Insert into MongoDB"]
+    SaveMongoText --> ReplyFlex
+
+    %% --- Postback Actions (Dashboard) ---
+    Router -- "Postback (Summary)" --> MongoAgg["MongoDB Aggregate (Sum Income/Expense)"]
+    MongoAgg --> GenDash["Generate Flex Message"]
+    GenDash --> ReplyDash["Reply: Dashboard"]
+
+    Router -- "Postback (Delete)" --> MongoDel["Delete Document"]
+    MongoDel --> ReplyDel["Reply: 'Deleted'"]
 
     %% Styles
-    style Start fill:#2ecc71,stroke:#27ae60,color:white
-    style AI fill:#8e44ad,stroke:#9b59b6,color:white
-    style UpDrive fill:#3498db,stroke:#2980b9,color:white
-    style GenFlex fill:#e67e22,stroke:#d35400,color:white
+    style Vision fill:#8e44ad,stroke:#9b59b6,color:white
+    style AI_NLP fill:#8e44ad,stroke:#9b59b6,color:white
+    style SaveMongoImg fill:#47A248,stroke:#2ecc71,color:white
+    style SaveMongoText fill:#47A248,stroke:#2ecc71,color:white
+    style MongoAgg fill:#47A248,stroke:#2ecc71,color:white
+    style UploadDrive fill:#34A853,stroke:#27ae60,color:white
 ```
-    
-## Tech Stack & Integrations
-- Core Engine: n8n (Workflow Automation)
-- Messaging Platform: LINE Messaging API (Webhook & Flex Message)
-- Database: Google Sheets
-- File Storage: Google Drive
-- AI Model: Google Gemini (For Natural Language Processing)
+
+## Tech Stack
+- Core Engine: n8n (Self-hosted/Cloud)
+- Messaging: LINE Messaging API (Webhook, Flex Message)
+- Database: MongoDB (Transactions, Logs)
+- Storage: Google Drive (Slip Images)
+- AI Models:
+    - Google Gemini 2.5 Flash: For Image Analysis (OCR) & Voice Transcription.
+    - OpenAI / Gemini: For Natural Language Processing (Intent Classification).
+
+## Usage Examples
+| Input Type | Example | Result (Database) |
+| :--- | :--- | :--- |
+| **Text** | "Paid electricity bill 1,200 baht" | `Class: Bill`, `Amount: 1200`, `Type: Expense` |
+| **Text** | "Salary came in 30,000" | `Class: Salary`, `Amount: 30000`, `Type: Income` |
+| **Voice** | (Speaking) "Bought coffee 60 baht" | `Class: Beverage`, `Amount: 60`, `Type: Expense` |
+| **Image** | [Upload K-Plus Slip] | Extracts `TransacID`, `Time`, saves image to Drive, logs entry. |
 
 ## Installation & Setup
-1. Import Workflow:
-- Open your n8n instance.
-- Create a new workflow.
-- Select Import from File and choose NongMas_line_chatbot.json.
-2. Configure Credentials: You need to set up the following credentials in n8n:
-- LINE Developer: Access Token and Channel Secret.
-- Google Cloud: OAuth2 connection for Google Sheets and Google Drive.
-- Google Gemini: API Key.
-3. Set Webhook:
-- Copy the URL from the Webhook node in n8n.
-- Paste it into the Webhook URL setting in the LINE Developers Console.
-4. Prepare Google Sheets:
-- Create a sheet for Transactions (Columns: Date, Item, Amount, Type, Category).
-- Create a sheet for File Logs (Columns: File Name, Drive Link, Upload Date).
-- Note: Update the Sheet ID in the Google Sheets node to match your file.
+1. Import Workflow: Import NongMas_line_chatbot.json into n8n.
+2. Credentials: Set up the following credentials in n8n:
+   - LINE Developer: Access Token & Channel Secret.
+   - Google Cloud: OAuth2 for Google Drive & Gemini API.
+   - MongoDB: Connection String (Atlas/Local).
+   - OpenAI: API Key (if enabled).
+3. Drive Folder: Replace the Folder ID in the "Search files and folders" node with your specific Google Drive Folder ID.
+4. Webhook: Connect the n8n Webhook URL to your LINE Developers Console.
