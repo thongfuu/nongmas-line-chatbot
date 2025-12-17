@@ -131,3 +131,4 @@ graph TD
    - OpenAI: API Key (if enabled).
 3. Drive Folder: Replace the Folder ID in the "Search files and folders" node with your specific Google Drive Folder ID.
 4. Webhook: Connect the n8n Webhook URL to your LINE Developers Console.
+
