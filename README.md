@@ -71,9 +71,6 @@ graph TD
     style UploadDrive fill:#34A853,stroke:#27ae60,color:white
 ```
 
-## Demo & Screenshot
-
-
 ## Tech Stack
 - Core Engine: n8n (Self-hosted/Cloud)
 - Messaging: LINE Messaging API (Webhook, Flex Message)
@@ -90,6 +87,40 @@ graph TD
 | **Text** | "Salary came in 30,000" | `Class: Salary`, `Amount: 30000`, `Type: Income` |
 | **Voice** | (Speaking) "Bought coffee 60 baht" | `Class: Beverage`, `Amount: 60`, `Type: Expense` |
 | **Image** | [Upload K-Plus Slip] | Extracts `TransacID`, `Time`, saves image to Drive, logs entry. |
+
+## Demo & Screenshot
+
+<table>
+  <tr>
+    <th width="33%">ส่งข้อความ (Text)</th>
+    <th width="33%">ส่งสลิป (Slip OCR)</th>
+    <th width="33%">ส่งเสียง (Voice)</th>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="https://github.com/user-attachments/assets/3d49d9ec-8944-40dc-8c28-676b9489bae7" width="100%" alt="ส่งข้อความ" />
+    </td>
+    <td valign="top">
+      <img src="https://github.com/user-attachments/assets/dc6f388a-4dc7-49c8-9516-8d4fcc9a56c0" width="100%" alt="ส่งสลิป" />
+    </td>
+    <td valign="top">
+      <img src="https://github.com/user-attachments/assets/eea61152-801b-4e0d-9db0-3ea499251647" width="100%" alt="ส่งเสียง" />
+    </td>
+  </tr>
+  <tr>
+    <th>สรุปรายเดือน (Dashboard)</th>
+    <th>ดูรายการวันนี้ (Daily View)</th>
+    <th></th> </tr>
+  <tr>
+    <td valign="top">
+      <img src="https://github.com/user-attachments/assets/5474c44b-5126-492c-ab55-413e5f73bd14" width="100%" alt="สรุปรายเดือน" />
+    </td>
+    <td valign="top">
+      <img src="https://github.com/user-attachments/assets/6321f274-c2cb-4f32-9032-e190925c8655" width="100%" alt="ดูรายการวันนี้" />
+    </td>
+    <td></td> </tr>
+</table>
+
 
 ## Installation & Setup
 1. Import Workflow: Import NongMas_line_chatbot.json into n8n.
